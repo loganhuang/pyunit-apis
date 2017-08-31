@@ -26,6 +26,9 @@ class BaseLineNormalCase(unittest.TestCase):
     # {"header":{"result":{"submitToken":"Submit_token", "userToken":"OPERATOR_TOKEN"}}}
     def get_key_val(self, ret_dict, cache_dict, out_dict):
         for key in cache_dict:
+            if key not in ret_dict.keys():
+                break
+                
             if isinstance(cache_dict[key], dict) and isinstance(ret_dict[key], dict):
                 self.get_key_val(ret_dict[key], cache_dict[key], out_dict)
             else:
