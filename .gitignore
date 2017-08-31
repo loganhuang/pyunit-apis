@@ -1,4 +1,4 @@
 *.pyc
 .idea/*
-report/*
+report/*.html
 logger/result/*
