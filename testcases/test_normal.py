@@ -5,6 +5,8 @@ import unittest
 import json
 from logger.Logger import BaseLineLogger
 from utils.httpmethods import BaseLineHttp
+from common.checkpoints.cpnormal import BaseLineCpNormal
+from common.caches.cachesnormal import BaseLineCachesNormal
 
 
 __author__ = ''
@@ -17,86 +19,60 @@ class BaseLineNormalCase(unittest.TestCase):
         super(BaseLineNormalCase, self).__init__(methodname)
         self.api_data = api_data
         self.http = http
+        self.case_name = ''
+        self.case_id = ''
+        self.check_point = {}
+        self.cache_dict = {}
         self.log = BaseLineLogger.get_log()
         self.__doc__ = 'api_data'
 
     def setUp(self):
-        pass
+        if not isinstance(self.api_data, list or tuple):
+            raise TypeError
 
-    # {"header":{"result":{"submitToken":"Submit_token", "userToken":"OPERATOR_TOKEN"}}}
-    def get_key_val(self, ret_dict, cache_dict, out_dict):
-        for key in cache_dict:
-            if key not in ret_dict.keys():
-                break
-                
-            if isinstance(cache_dict[key], dict) and isinstance(ret_dict[key], dict):
-                self.get_key_val(ret_dict[key], cache_dict[key], out_dict)
-            else:
-                out_dict[cache_dict[key]] = ret_dict[key]
-
-    def check_cache(self, http, ret_dict, cache_dict):
         if not isinstance(self.http, BaseLineHttp):
             raise TypeError
 
-        for key in cache_dict:
-            out_dict = {}
-            self.get_key_val(ret_dict, cache_dict[key], out_dict)
-            if key == 'header':
-                self.http.set_header(out_dict)
+        self.case_id = self.api_data[0]
+        self.case_name = self.api_data[1]
 
-            elif key == 'paras':
-                self.http.set_paras(out_dict)
-            elif key == 'data':
-                self.http.set_data(out_dict)
-            else:
-                pass
-
+        self.log.info('%s[%s]======================TEST START=======================', *(self.case_id, self.case_name))
         pass
 
     # case_id    desc	  api_path	   methods	type	data	                                      checkpoint	cache    active	others
     # Case_001  login	/login/login	post	form	{"phoneNo":"18701082122", "smsCode":"111111"}	success	              TRUE
     def test_normal(self):
-        if not isinstance(self.api_data, list or tuple):
-            raise TypeError
-
-        bl_http = None
-        if isinstance(self.http, BaseLineHttp):
-            bl_http = self.http
-        else:
-            raise TypeError
-        case_id = self.api_data[0]
-        case_name = self.api_data[1]
-        print("case_id:" + case_id)
-        print("case_desc:" + case_name)
+        print('case_id:%-14s' % self.case_id)
+        print("case_desc:%-30s" % self.case_name)
 
         api_path = self.api_data[2]
         method = self.api_data[3]
         # data_type = self.api_data[4]
         data = self.api_data[5]
-        check_point = json.loads(self.api_data[6])
-        cache_dict = {}
+        self.check_point = json.loads(self.api_data[6])
         if self.api_data[7] != "":
-            cache_dict = json.loads(self.api_data[7])
+            self.cache_dict = json.loads(self.api_data[7])
 
         ret = None
         if method == 'post':
-            ret = bl_http.post(api_path, data)
+            ret = self.http.post(api_path, data)
         elif method == 'get':
-            ret = bl_http.get(api_path, data)
+            ret = self.http.get(api_path, data)
         else:
             pass
 
         if ret:
-            for key in check_point:
-                self.log.info("[%s]: check_point: %s=%s, response: %s=%s",
-                              *(case_name, key, check_point[key], key, ret[key]))
-                self.assertEqual(ret[key], check_point[key], ret[key])
-            if len(cache_dict) > 0:
-                self.check_cache(bl_http, ret, cache_dict)
+            rtn, rtn_msg = BaseLineCpNormal.check_points(self.check_point, ret, self.case_name, self.case_id)
+            self.assertTrue(rtn, msg=rtn_msg)
+            print('because ' + rtn_msg + ', so the test Passed')
+            if len(self.cache_dict) > 0:
+                BaseLineCachesNormal.check_caches(self.cache_dict, ret, self.http)
         else:
-            self.log.info("[%s]: expected response: %s, but no any response", *(case_name, check_point))
-            self.assertIsNone(check_point, msg=None)
+            self.log.info("[%s]: expected response: %s, but no any response", *(self.case_name, self.check_point))
+            self.assertIsNone(self.check_point, msg=None)
 
+    def tearDown(self):
+        self.log.info('%s[%s]======================TEST END======================\n\n', *(self.case_id, self.case_name))
 
 def load_tests(loader, tests, pattern):
     from utils.xlshandler import BaseLineXls

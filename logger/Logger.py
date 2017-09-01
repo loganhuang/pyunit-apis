@@ -77,7 +77,7 @@ class BaseLineLogger:
     def get_log():
         if BaseLineLogger.log is None:
             BaseLineLogger.mutex.acquire()
-            BaseLineLogger.log = Logger(log2file=None, log2console=True)
+            BaseLineLogger.log = Logger(log2file=True, log2console=None)
             BaseLineLogger.mutex.release()
         return BaseLineLogger.log
 

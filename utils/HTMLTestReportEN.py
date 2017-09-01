@@ -767,9 +767,9 @@ class HTMLTestRunner(Template_mixin):
             tid = tid,
             Class = (n == 0 and 'hiddenRow' or 'none'),
             style = n == 2 and 'errorCase' or (n == 1 and 'failCase' or 'passCase'),
-            desc = desc + ":" + caseid[caseid.find("case_desc") + 10: (int(caseid.find("case_desc")) + 21)],
+            desc = desc + ":" + caseid[caseid.find("case_desc:") + 10: (int(caseid.find("case_desc")) + 40)],
             image = image[image.find("image"):(int(image.find("png")) + 3)],
-            caseid = caseid[caseid.find("case_id") + 8:(int(caseid.find("case_id")) + 16)],
+            caseid = caseid[caseid.find("case_id:") + 8:(int(caseid.find("case_id")) + 16)],
             script = script,
             status = self.STATUS[n],
         )
