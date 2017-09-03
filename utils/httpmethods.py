@@ -76,8 +76,8 @@ class BaseLineHttp:
         if not isinstance(params, dict):
             params = {}
 
-        # substitution reference
-        self.sub_ref(params, self.paras)
+        # substitution referenceparas
+        self.sub_ref(params, self.data)
 
         if len(params) > 0:
             params = urllib.parse.urlencode(params)  # 将参数转为url编码字符串
@@ -89,7 +89,7 @@ class BaseLineHttp:
         self.log.info("get-headers=%s", *(self.headers,))
 
         try:
-            rtn = requests.get(url, data=params, headers=self.headers)
+            rtn = requests.get(url, headers=self.headers)
             self.log.info("get-response=" + rtn.text)
             return rtn.json()
         except Exception as e:
