@@ -1,4 +1,4 @@
-#coding=utf-8
+# coding=utf-8
 """
 A TestRunner for use with the Python unit testing framework. It
 generates a HTML report to show the result at a glance.
@@ -68,7 +68,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 __author__ = "Wai Yip Tung,  Findyou"
 __version__ = "0.8.2.2"
 
-
 """
 Change History
 Version 0.8.2.1 -Findyou
@@ -108,6 +107,7 @@ import unittest
 from xml.sax import saxutils
 import sys
 
+
 # ------------------------------------------------------------------------
 # The redirectors below are used to capture output during testing. Output
 # sent to sys.stdout and sys.stderr are automatically captured. However
@@ -121,6 +121,7 @@ import sys
 
 class OutputRedirector(object):
     """ Wrapper to redirect stdout or stderr """
+
     def __init__(self, fp):
         self.fp = fp
 
@@ -133,8 +134,10 @@ class OutputRedirector(object):
     def flush(self):
         self.fp.flush()
 
+
 stdout_redirector = OutputRedirector(sys.stdout)
 stderr_redirector = OutputRedirector(sys.stderr)
+
 
 # ----------------------------------------------------------------------
 # Template
@@ -180,126 +183,141 @@ class Template_mixin(object):
     """
 
     STATUS = {
-    0: 'pass',
-    1: 'fail',
-    2: 'error',
+        0: 'pass',
+        1: 'fail',
+        2: 'error',
     }
 
     DEFAULT_TITLE = 'Unit Test Report'
     DEFAULT_DESCRIPTION = ''
-    DEFAULT_TESTER='QA'
+    DEFAULT_TESTER = 'QA'
 
     # ------------------------------------------------------------------------
     # HTML Template
 
-    HTML_TMPL = r"""<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-    <title>%(title)s</title>
-    <meta name="generator" content="%(generator)s"/>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-    <link href="http://libs.baidu.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet">
-    <script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
-    <script src="http://libs.baidu.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
-    %(stylesheet)s
-</head>
-<body >
-<script language="javascript" type="text/javascript">
-output_list = Array();
+    HTML_TMPL = r"""
+    <?xml version="1.0" encoding="UTF-8"?>
+    <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+    <html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <title>%(title)s</title>
+        <meta name="generator" content="%(generator)s"/>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+        <link href="http://libs.baidu.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet">
+        <script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+        <script src="http://libs.baidu.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+        %(stylesheet)s
+    </head>
 
-/*level 调整增加只显示通过用例的分类 --Findyou
-0:Summary //all hiddenRow
-1:Failed  //pt hiddenRow, ft none
-2:Pass    //pt none, ft hiddenRow
-3:All     //pt none, ft none
-*/
-function showCase(level) {
-    trs = document.getElementsByTagName("tr");
-    for (var i = 0; i < trs.length; i++) {
-        tr = trs[i];
-        id = tr.id;
-        if (id.substr(0,2) == 'ft') {
-            if (level == 2 || level == 0 ) {
-                tr.className = 'hiddenRow';
+    <body >
+        <script language="javascript" type="text/javascript">
+            output_list = Array();
+
+            /*level 调整增加只显示通过用例的分类 --Findyou
+            0:Summary //all hiddenRow
+            1:Failed  //pt hiddenRow, ft none
+            2:Pass    //pt none, ft hiddenRow
+            3:All     //pt none, ft none
+            */
+            function showCase(level) {
+                trs = document.getElementsByTagName("tr");
+                for (var i = 0; i < trs.length; i++) {
+                    tr = trs[i];
+                    id = tr.id;
+
+                    startId = id.substr(0,2)
+                    if (startId == 'ft' || startId == 'pt' || startId == 'et'){
+                        tr.className = 'hiddenRow'
+                    }
+
+                    if (level == 1){
+                        if (startId == 'ft') {
+                            tr.className = 'failCase'
+                        }
+                    }
+
+                    if (level == 2){
+                        if (startId == 'et') {
+                            tr.className = 'errorCase'
+                        }
+                    }
+
+                    if (level == 3){
+                        if (startId == 'pt') {
+                            tr.className = 'passCase'
+                        }
+                    }
+
+                    if (level == 4){
+                        if (startId == 'ft') {
+                            tr.className = 'failCase'
+                        }
+                        if (startId == 'et') {
+                            tr.className = 'errorCase'
+                        }
+                        if (startId == 'pt') {
+                            tr.className = 'passCase'
+                        }
+                    }
+                }
+
+                detail_class=document.getElementsByClassName('detail');
+                //console.log(detail_class.length)
+                if (level == 4) {
+                    for (var i = 0; i < detail_class.length; i++){
+                        detail_class[i].innerHTML="outline"
+                    }
+                }
+                else{
+                        for (var i = 0; i < detail_class.length; i++){
+                        detail_class[i].innerHTML="detail"
+                    }
+                }
             }
-            else {
-                tr.className = '';
+
+            function showClassDetail(cid, count) {
+                var id_list = Array(count);
+                var toHide = 1;
+                for (var i = 0; i < count; i++) {
+                    tid0 = 't' + cid.substr(1) + '_' + (i+1);
+                    tid = 'f' + tid0;
+                    tr = document.getElementById(tid);
+                    if (!tr) {
+                        tid = 'p' + tid0;
+                        tr = document.getElementById(tid);
+                    }
+                    id_list[i] = tid;
+                    if (tr.className) {
+                        toHide = 0;
+                    }
+                }
+                for (var i = 0; i < count; i++) {
+                    tid = id_list[i];
+                    if (toHide) {
+                        document.getElementById(tid).className = 'hiddenRow';
+                        document.getElementById(cid).innerText = "detail"
+                    }
+                    else {
+                        document.getElementById(tid).className = '';
+                        document.getElementById(cid).innerText = "outline"
+                    }
+                }
             }
-        }
-        if (id.substr(0,2) == 'pt') {
-            if (level < 2) {
-                tr.className = 'hiddenRow';
+
+            function html_escape(s) {
+                s = s.replace(/&/g,'&amp;');
+                s = s.replace(/</g,'&lt;');
+                s = s.replace(/>/g,'&gt;');
+                return s;
             }
-            else {
-                tr.className = '';
-            }
-        }
-    }
-
-    //加入【详细】切换文字变化 --Findyou
-    detail_class=document.getElementsByClassName('detail');
-	//console.log(detail_class.length)
-	if (level == 3) {
-		for (var i = 0; i < detail_class.length; i++){
-			detail_class[i].innerHTML="outline"
-		}
-	}
-	else{
-			for (var i = 0; i < detail_class.length; i++){
-			detail_class[i].innerHTML="detail"
-		}
-	}
-}
-
-function showClassDetail(cid, count) {
-    var id_list = Array(count);
-    var toHide = 1;
-    for (var i = 0; i < count; i++) {
-        //ID修改 点 为 下划线 -Findyou
-        tid0 = 't' + cid.substr(1) + '_' + (i+1);
-        tid = 'f' + tid0;
-        tr = document.getElementById(tid);
-        if (!tr) {
-            tid = 'p' + tid0;
-            tr = document.getElementById(tid);
-        }
-        id_list[i] = tid;
-        if (tr.className) {
-            toHide = 0;
-        }
-    }
-    for (var i = 0; i < count; i++) {
-        tid = id_list[i];
-        //修改点击无法收起的BUG，加入【详细】切换文字变化 --Findyou
-        if (toHide) {
-            document.getElementById(tid).className = 'hiddenRow';
-            document.getElementById(cid).innerText = "detail"
-        }
-        else {
-            document.getElementById(tid).className = '';
-            document.getElementById(cid).innerText = "outline"
-        }
-    }
-}
-
-function html_escape(s) {
-    s = s.replace(/&/g,'&amp;');
-    s = s.replace(/</g,'&lt;');
-    s = s.replace(/>/g,'&gt;');
-    return s;
-}
-</script>
-%(heading)s
-%(report)s
-%(ending)s
-
-</body>
-</html>
-"""
+        </script>
+        %(heading)s
+        %(report)s
+        %(ending)s
+    </body>
+    </html>
+    """
     # variables: (title, generator, stylesheet, heading, report, ending)
-
-
     # ------------------------------------------------------------------------
     # Stylesheet
     #
@@ -307,170 +325,175 @@ function html_escape(s) {
     #   <link rel="stylesheet" href="$url" type="text/css">
 
     STYLESHEET_TMPL = """
-<style type="text/css" media="screen">
-body        { font-family: Microsoft YaHei,Tahoma,arial,helvetica,sans-serif;padding: 20px; font-size: 80%; }
-table       { font-size: 100%; }
+    <style type="text/css" media="screen">
+        body { font-family: Microsoft YaHei,Tahoma,arial,helvetica,sans-serif;padding: 20px; font-size: 80%; }
+        table { font-size: 100%; }
 
-/* -- heading ---------------------------------------------------------------------- */
-.heading {
-    margin-top: 0ex;
-    margin-bottom: 1ex;
-}
+        /* -- heading ---------------------------------------------------------------------- */
+        .heading {
+            margin-top: 0ex;
+            margin-bottom: 1ex;
+        }
 
-.heading .description {
-    margin-top: 4ex;
-    margin-bottom: 6ex;
-}
+        .heading .description {
+            margin-top: 4ex;
+            margin-bottom: 6ex;
+        }
 
-/* -- report ------------------------------------------------------------------------ */
-#total_row  { font-weight: bold; }
-.passCase   { color: #5cb85c; }
-.failCase   { color: #d9534f; font-weight: bold; }
-.errorCase  { color: #f0ad4e; font-weight: bold; }
-.hiddenRow  { display: none; }
-.testcase   { margin-left: 2em; }
-</style>
-"""
+        /* -- report ------------------------------------------------------------------------ */
+        #total_row  { font-weight: bold; }
+        .passCase   { color: #5cb85c; }
+        .failCase   { color: #d9534f; font-weight: bold; }
+        .errorCase  { color: #f0ad4e; font-weight: bold; }
+        .hiddenRow  { display: none; }
+        .testcase   { margin-left: 2em; }
+    </style>
+    """
 
     # ------------------------------------------------------------------------
     # Heading
-    #
+    # variables: (title, parameters, description)
 
-    HEADING_TMPL = """<div class='heading'>
-<h1>%(title)s</h1>
-%(parameters)s
-<p class='description'>%(description)s</p>
-</div>
-
-""" # variables: (title, parameters, description)
-
-    HEADING_ATTRIBUTE_TMPL = """<p class='attribute'><strong>%(name)s : </strong> %(value)s</p>
-""" # variables: (name, value)
-
-
-
-    # ------------------------------------------------------------------------
-    # Report
-    #
-    # 汉化,加美化效果 --Findyou
-    REPORT_TMPL = """
-<p id='show_detail_line'>
-<a class="btn btn-primary" href='javascript:showCase(0)'>Summary{ %(passrate)s }</a>
-<a class="btn btn-danger" href='javascript:showCase(1)'>Failed{ %(fail)s }</a>
-<a class="btn btn-danger" href='javascript:showCase(1)'>Error{ %(error)s }</a>
-<a class="btn btn-success" href='javascript:showCase(2)'>Passed{ %(Pass)s }</a>
-<a class="btn btn-info" href='javascript:showCase(3)'>ALL{ %(count)s }</a>
-</p>
-<table id='result_table' class="table table-condensed table-bordered table-hover">
-<colgroup>
-<col align='left' />
-<col align='right' />
-<col align='right' />
-<col align='right' />
-<col align='right' />
-<col align='right' />
-</colgroup>
-<tr id='header_row' class="text-center success" style="font-weight: bold;font-size: 14px;">
-    <td colspan='2'>Test Group/Test case</td>
-    <td>Count</td>
-    <td>Pass</td>
-    <td>Fail</td>
-    <td>Error</td>
-    <td>View</td>
-    <td>Screenshot</td>
-</tr>
-%(test_list)s
-<tr id='total_row' class="text-center active">
-    <td colspan='2'>Total</td>
-    <td>%(count)s</td>
-    <td>%(Pass)s</td>
-    <td>%(fail)s</td>
-    <td>%(error)s</td>
-    <td>&nbsp;</td>
-    <td colspan='2'>Passing rate: %(passrate)s</td>
-</tr>
-</table>
-""" # variables: (test_list, count, Pass, fail, error ,passrate)
-
-    REPORT_CLASS_TMPL = r"""
-<tr class='%(style)s warning'>
-    <td>caseid</td>
-    <td>%(desc)s</td>
-    <td class="text-center">%(count)s</td>
-    <td class="text-center">%(Pass)s</td>
-    <td class="text-center">%(fail)s</td>
-    <td class="text-center">%(error)s</td>
-    <td class="text-center"><a href="javascript:showClassDetail('%(cid)s',%(count)s)" class="detail" id='%(cid)s'>Detail</a></td>
-    <td>&nbsp;</td>
-</tr>
-""" # variables: (style, desc, count, Pass, fail, error, cid)
-
-    REPORT_TEST_WITH_OUTPUT_TMPL = r"""
-<tr id='%(tid)s' class='%(Class)s'>
-    <td  align='center'>%(caseid)s</td>
-    <td class='%(style)s'><div class='testcase'>%(desc)s</div></td>
-   
-    <td colspan='5' align='center'>
-    <!--默认收起错误信息 -Findyou -->
-    <button id='btn_%(tid)s' type="button"  class="btn btn-danger btn-xs collapsed" data-toggle="collapse" data-target='#div_%(tid)s'>%(status)s</button>
-    <div id='div_%(tid)s' class="collapse">  
-
-    <!-- 默认展开错误信息 -Findyou 
-    <button id='btn_%(tid)s' type="button"  class="btn btn-danger btn-xs" data-toggle="collapse" data-target='#div_%(tid)s'>%(status)s</button>
-    <div id='div_%(tid)s' class="collapse in">  -->
-    <pre>
-    %(script)s
-    </pre>
+    HEADING_TMPL = """
+    <div class='heading'>
+        <h1>%(title)s</h1>
+        %(parameters)s
+        <p class='description'>%(description)s</p>
     </div>
-    </td>
-    
-    <td align='center'>
-    <a href="%(image)s" title="%(image)s">
-    <img src="..\data\img.png" height=20 width=20 border=0 /></a>
-    </td>
-
-</tr>
-
-""" # variables: (tid, Class, style, desc, status)
-
-    # 通过 的样式，加标签效果  -Findyou
-    REPORT_TEST_NO_OUTPUT_TMPL = r"""
-<tr id='%(tid)s' class='%(Class)s'>
-    <td class='%(style)s'><div class='testcase'>%(desc)s</div></td>
-    <td colspan='5' align='center'><span class="label label-success success">%(status)s</span></td>
-</tr>
-""" # variables: (tid, Class, style, desc, status)
-
-    REPORT_TEST_OUTPUT_TMPL = r"""
-%(id)s: %(output)s
-""" # variables: (id, output)
-
-    REPORT_TEST_OUTPUT_IMAGE = r"""
-
-    %(screenshot)s
 
     """
 
+    # variables: (name, value)
+    HEADING_ATTRIBUTE_TMPL = """
+    <p class='attribute'><strong>%(name)s : </strong> %(value)s</p>
+    """
+
+    # ------------------------------------------------------------------------
+    # Report
+    # variables: (detail, header, test_list, total_row)
+    REPORT_TMPL = """
+    <p id='show_detail_line'>
+        <a class="btn btn-primary" href='javascript:showCase(0)'>Summary{ %(passrate)s }</a>
+        <a class="btn btn-danger" href='javascript:showCase(1)'>Failed{ %(fail)s }</a>
+        <a class="btn btn-danger" href='javascript:showCase(2)'>Error{ %(error)s }</a>
+        <a class="btn btn-success" href='javascript:showCase(3)'>Passed{ %(Pass)s }</a>
+        <a class="btn btn-info" href='javascript:showCase(4)'>ALL{ %(count)s }</a>
+    </p>
+    <table id='result_table' class="table table-condensed table-bordered table-hover">
+        <colgroup>
+            <col align='left' />
+            <col align='right' />
+            <col align='right' />
+            <col align='right' />
+            <col align='right' />
+            <col align='right' />
+        </colgroup>
+        <tr id='header_row' class="text-center success" style="font-weight: bold;font-size: 14px;">
+            <td colspan='2'>Test Group/Test case</td>
+            <td>Count</td>
+            <td>Pass</td>
+            <td>Fail</td>
+            <td>Error</td>
+            <td>View</td>
+            <td>Screenshot</td>
+        </tr>
+        %(test_list)s
+        <tr id='total_row' class="text-center active">
+            <td colspan='2'>Total</td>
+            <td>%(count)s</td>
+            <td>%(Pass)s</td>
+            <td>%(fail)s</td>
+            <td>%(error)s</td>
+            <td>&nbsp;</td>
+            <td colspan='2'>Passing rate: %(passrate)s</td>
+        </tr>
+    </table>
+    """
+
+    # variables: (style, caseid, desc, count, Pass, fail, error, cid)
+    REPORT_CLASS_TMPL = r"""
+    <tr class='%(style)s warning'>
+        <td>caseid</td>
+        <td>%(desc)s</td>
+        <td class="text-center">%(count)s</td>
+        <td class="text-center">%(Pass)s</td>
+        <td class="text-center">%(fail)s</td>
+        <td class="text-center">%(error)s</td>
+        <td class="text-center"><a href="javascript:showClassDetail('%(cid)s',%(count)s)" class="detail" id='%(cid)s'>Detail</a></td>
+        <td>&nbsp;</td>
+    </tr>
+    """
+
+    # variables: (tid, Class, caseid, style, desc, status)
+    REPORT_TEST_WITH_OUTPUT_TMPL = r"""
+    <tr id='%(tid)s' class='%(Class)s'>
+        <td  class='%(style)s'><div class='testcase'>%(caseid)s</td>
+        <td class='%(style)s'><div class='testcase'>%(desc)s</div></td>
+
+        <td colspan='5' align='center'>
+            <!--默认收起错误信息 -Findyou -->
+            <button id='btn_%(tid)s' type="button"  class="btn btn-danger btn-xs collapsed" data-toggle="collapse" data-target='#div_%(tid)s'>%(status)s</button>
+            <div id='div_%(tid)s' class="collapse">
+
+            <!-- 默认展开错误信息 -Findyou
+            <button id='btn_%(tid)s' type="button"  class="btn btn-danger btn-xs" data-toggle="collapse" data-target='#div_%(tid)s'>%(status)s</button>
+            <div id='div_%(tid)s' class="collapse in">  -->
+
+                <pre>
+                    %(script)s
+                </pre>
+            </div>
+        </td>
+
+        <td align='center'>
+            <a href="%(image)s" title="%(image)s">
+            <img src="..\data\img.png" height=20 width=20 border=0 /></a>
+        </td>
+    </tr>
+    """
+
+    # 通过 的样式，加标签效果  -Findyou
+    # variables: (tid, Class, style, desc, status)
+    REPORT_TEST_NO_OUTPUT_TMPL = r"""
+    <tr id='%(tid)s' class='%(Class)s'>
+        <td class='%(style)s'><div class='testcase'>%(desc)s</div></td>
+        <td colspan='5' align='center'><span class="label label-success success">%(status)s</span></td>
+    </tr>
+    """
+
+    # variables: (id, output)
+    REPORT_TEST_OUTPUT_TMPL = r"""
+    %(id)s: %(output)s
+    """
+    # variables: (screenshot)
+    REPORT_TEST_OUTPUT_IMAGE = r"""
+    %(screenshot)s
+    """
+
+    # variables: (case_id)
     REPORT_TEST_OUTPUT_CASEID = r"""
-
     %(case_id)s
-
     """
 
     # ------------------------------------------------------------------------
     # ENDING
     #
-    # 增加返回顶部按钮  --Findyou
-    ENDING_TMPL = """<div id='ending'>&nbsp;</div>
+
+    ENDING_TMPL = """
+    <div id='ending'>&nbsp;</div>
     <div style=" position:fixed;right:50px; bottom:30px; width:20px; height:20px;cursor:pointer">
-    <a href="#"><span class="glyphicon glyphicon-eject" style = "font-size:30px;" aria-hidden="true">
-    </span></a></div>
+        <a href="#">
+            <span class="glyphicon glyphicon-eject" style = "font-size:30px;" aria-hidden="true"> </span>
+        </a>
+    </div>
     """
+
 
 # -------------------- The end of the Template class -------------------
 
 
 TestResult = unittest.TestResult
+
 
 class _TestResult(TestResult):
     # note: _TestResult is a pure representation of results.
@@ -493,9 +516,8 @@ class _TestResult(TestResult):
         #   stack trace,
         # )
         self.result = []
-        #增加一个测试通过率 --Findyou
-        self.passrate=float(0)
-
+        # 增加一个测试通过率 --Findyou
+        self.passrate = float(0)
 
     def startTest(self, test):
         TestResult.startTest(self, test)
@@ -507,7 +529,6 @@ class _TestResult(TestResult):
         self.stderr0 = sys.stderr
         sys.stdout = stdout_redirector
         sys.stderr = stderr_redirector
-
 
     def complete_output(self):
         """
@@ -521,13 +542,11 @@ class _TestResult(TestResult):
             self.stderr0 = None
         return self.outputBuffer.getvalue()
 
-
     def stopTest(self, test):
         # Usually one of addSuccess, addError or addFailure would have been called.
         # But there are some path in unittest that would bypass this.
         # We must disconnect stdout in stopTest(), which is guaranteed to be called.
         self.complete_output()
-
 
     def addSuccess(self, test):
         self.success_count += 1
@@ -571,7 +590,8 @@ class _TestResult(TestResult):
 class HTMLTestRunner(Template_mixin):
     """
     """
-    def __init__(self, stream=sys.stdout, verbosity=1,title=None,description=None,tester=None):
+
+    def __init__(self, stream=sys.stdout, verbosity=1, title=None, description=None, tester=None):
         self.stream = stream
         self.verbosity = verbosity
         if title is None:
@@ -589,32 +609,30 @@ class HTMLTestRunner(Template_mixin):
 
         self.startTime = datetime.datetime.now()
 
-
     def run(self, test):
         "Run the given test case or test suite."
         result = _TestResult(self.verbosity)
         test(result)
         self.stopTime = datetime.datetime.now()
         self.generateReport(test, result)
-        print('\nTime Elapsed: %s' % (self.stopTime-self.startTime), file=sys.stderr)
+        print('\nTime Elapsed: %s' % (self.stopTime - self.startTime), file=sys.stderr)
         return result
-
 
     def sortResult(self, result_list):
         # unittest does not seems to run in any particular order.
         # Here at least we want to group them together by class.
         rmap = {}
         classes = []
-        for n,t,o,e in result_list:
+        for n, t, o, e in result_list:
             cls = t.__class__
             if cls not in rmap:
                 rmap[cls] = []
                 classes.append(cls)
-            rmap[cls].append((n,t,o,e))
+            rmap[cls].append((n, t, o, e))
         r = [(cls, rmap[cls]) for cls in classes]
         return r
 
-    #替换测试结果status为通过率 --Findyou
+    # 替换测试结果status为通过率 --Findyou
     def getReportAttributes(self, result):
         """
         Return report attributes as a list of (name, value).
@@ -624,21 +642,21 @@ class HTMLTestRunner(Template_mixin):
         duration = str(self.stopTime - self.startTime)
         status = []
         status.append('ALL %s' % (result.success_count + result.failure_count + result.error_count))
-        if result.success_count: status.append('Pass %s'    % result.success_count)
+        if result.success_count: status.append('Pass %s' % result.success_count)
         if result.failure_count: status.append('Failure %s' % result.failure_count)
-        if result.error_count:   status.append('Error %s'   % result.error_count  )
+        if result.error_count:   status.append('Error %s' % result.error_count)
         if status:
             status = ' '.join(status)
-            self.passrate = str("%.2f%%" % (float(result.success_count) / float(result.success_count + result.failure_count + result.error_count) * 100))
+            self.passrate = str("%.2f%%" % (float(result.success_count) / float(
+                result.success_count + result.failure_count + result.error_count) * 100))
         else:
             status = 'none'
         return [
             ('Tester', self.tester),
             ('Start Time', startTime),
             ('Duration', duration),
-            ('Status',status + ", Passing rate: "+self.passrate),
+            ('Status', status + ", Passing rate: " + self.passrate),
         ]
-
 
     def generateReport(self, test, result):
         report_attrs = self.getReportAttributes(result)
@@ -648,47 +666,50 @@ class HTMLTestRunner(Template_mixin):
         report = self._generate_report(result)
         ending = self._generate_ending()
         output = self.HTML_TMPL % dict(
-            title = saxutils.escape(self.title),
-            generator = generator,
-            stylesheet = stylesheet,
-            heading = heading,
-            report = report,
-            ending = ending,
+            title=saxutils.escape(self.title),
+            generator=generator,
+            stylesheet=stylesheet,
+            heading=heading,
+            report=report,
+            ending=ending,
         )
         self.stream.write(output.encode('utf8'))
-
 
     def _generate_stylesheet(self):
         return self.STYLESHEET_TMPL
 
-    #增加Tester显示 -Findyou
+    # 增加Tester显示 -Findyou
     def _generate_heading(self, report_attrs):
         a_lines = []
         for name, value in report_attrs:
             line = self.HEADING_ATTRIBUTE_TMPL % dict(
-                    name = saxutils.escape(name),
-                    value = saxutils.escape(value),
-                )
+                name=saxutils.escape(name),
+                value=saxutils.escape(value),
+            )
             a_lines.append(line)
+
         heading = self.HEADING_TMPL % dict(
-            title = saxutils.escape(self.title),
-            parameters = ''.join(a_lines),
-            description = saxutils.escape(self.description),
-            tester= saxutils.escape(self.tester),
+            title=saxutils.escape(self.title),
+            parameters=''.join(a_lines),
+            description=saxutils.escape(self.description),
+            tester=saxutils.escape(self.tester),
         )
         return heading
 
-    #生成报告  --Findyou添加注释
+    # 生成报告  --Findyou添加注释
     def _generate_report(self, result):
         rows = []
         sortedResult = self.sortResult(result.result)
         for cid, (cls, cls_results) in enumerate(sortedResult):
             # subtotal for a class
             np = nf = ne = 0
-            for n,t,o,e in cls_results:
-                if n == 0: np += 1
-                elif n == 1: nf += 1
-                else: ne += 1
+            for n, t, o, e in cls_results:
+                if n == 0:
+                    np += 1
+                elif n == 1:
+                    nf += 1
+                else:
+                    ne += 1
 
             # format class description
             if cls.__module__ == "__main__":
@@ -699,42 +720,41 @@ class HTMLTestRunner(Template_mixin):
             desc = doc and '%s: %s' % (name, doc) or name
 
             row = self.REPORT_CLASS_TMPL % dict(
-                style = ne > 0 and 'errorClass' or nf > 0 and 'failClass' or 'passClass',
-                desc = desc,
-                count = np+nf+ne,
-                Pass = np,
-                fail = nf,
-                error = ne,
-                cid = 'c%s' % (cid+1),
+                style=ne > 0 and 'errorClass' or nf > 0 and 'failClass' or 'passClass',
+                desc=desc,
+                count=np + nf + ne,
+                Pass=np,
+                fail=nf,
+                error=ne,
+                cid='c%s' % (cid + 1),
             )
             rows.append(row)
 
-            for tid, (n,t,o,e) in enumerate(cls_results):
+            for tid, (n, t, o, e) in enumerate(cls_results):
                 self._generate_report_test(rows, cid, tid, n, t, o, e)
 
         report = self.REPORT_TMPL % dict(
-            test_list = ''.join(rows),
-            count = str(result.success_count+result.failure_count+result.error_count),
-            Pass = str(result.success_count),
-            fail = str(result.failure_count),
-            error = str(result.error_count),
-            passrate =self.passrate,
+            test_list=''.join(rows),
+            count=str(result.success_count + result.failure_count + result.error_count),
+            Pass=str(result.success_count),
+            fail=str(result.failure_count),
+            error=str(result.error_count),
+            passrate=self.passrate,
         )
         return report
-
 
     def _generate_report_test(self, rows, cid, tid, n, t, o, e):
         # e.g. 'pt1.1', 'ft1.1', etc
         has_output = bool(o or e)
         # ID修改点为下划线,支持Bootstrap折叠展开特效 - Findyou
-        tid = (n == 0 and 'p' or 'f') + 't%s_%s' % (cid+1,tid+1)
+        tid = (n == 0 and 'p' or 'f') + 't%s_%s' % (cid + 1, tid + 1)
         name = t.id().split('.')[-1]
         doc = t.shortDescription() or ""
         desc = doc and ('%s: %s' % (name, doc)) or name
         tmpl = has_output and self.REPORT_TEST_WITH_OUTPUT_TMPL or self.REPORT_TEST_NO_OUTPUT_TMPL
 
         # utf-8 支持中文 - Findyou
-         # o and e should be byte string because they are collected from stdout and stderr?
+        # o and e should be byte string because they are collected from stdout and stderr?
         if isinstance(o, str):
             # TODO: some problem with 'string_escape': it escape \n and mess up formating
             # uo = unicode(o.encode('string_escape'))
@@ -751,27 +771,27 @@ class HTMLTestRunner(Template_mixin):
             ue = e
 
         script = self.REPORT_TEST_OUTPUT_TMPL % dict(
-            id = tid,
-            output = saxutils.escape(uo+ue),
+            id=tid,
+            output=saxutils.escape(uo + ue),
 
         )
         image = self.REPORT_TEST_OUTPUT_IMAGE % dict(
-                 screenshot = saxutils.escape(uo+ue)
+            screenshot=saxutils.escape(uo + ue)
         )
 
         caseid = self.REPORT_TEST_OUTPUT_CASEID % dict(
-                 case_id = saxutils.escape(uo+ue)
+            case_id=saxutils.escape(uo + ue)
         )
 
         row = tmpl % dict(
-            tid = tid,
-            Class = (n == 0 and 'hiddenRow' or 'none'),
-            style = n == 2 and 'errorCase' or (n == 1 and 'failCase' or 'passCase'),
-            desc = desc + ":" + caseid[caseid.find("case_desc:") + 10: (int(caseid.find("case_desc")) + 40)],
-            image = image[image.find("image"):(int(image.find("png")) + 3)],
-            caseid = caseid[caseid.find("case_id:") + 8:(int(caseid.find("case_id")) + 16)],
-            script = script,
-            status = self.STATUS[n],
+            tid=tid,
+            Class=(n == 0 and 'hiddenRow' or 'none'),
+            style=n == 2 and 'errorCase' or (n == 1 and 'failCase' or 'passCase'),
+            desc=desc + ":" + caseid[caseid.find("case_desc:") + 10: (int(caseid.find("case_desc")) + 40)],
+            image=image[image.find("image"):(int(image.find("png")) + 3)],
+            caseid=caseid[caseid.find("case_id:") + 8:(int(caseid.find("case_id")) + 16)],
+            script=script,
+            status=self.STATUS[n],
         )
         rows.append(row)
         if not has_output:
@@ -793,6 +813,7 @@ class TestProgram(unittest.TestProgram):
     A variation of the unittest.TestProgram. Please refer to the base
     class for command line parameters.
     """
+
     def runTests(self):
         # Pick HTMLTestRunner as the default test runner.
         # base class's testRunner parameter is not useful because it means
@@ -800,6 +821,7 @@ class TestProgram(unittest.TestProgram):
         if self.testRunner is None:
             self.testRunner = HTMLTestRunner(verbosity=self.verbosity)
         unittest.TestProgram.runTests(self)
+
 
 main = TestProgram
 

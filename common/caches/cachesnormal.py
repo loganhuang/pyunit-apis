@@ -39,8 +39,8 @@ class BaseLineCachesNormal:
             if key_cache == 'header':
                 http.set_header(dict_out)
 
-            elif key_cache == 'paras':
-                http.set_paras(dict_out)
+            # elif key_cache == 'paras':
+            #    http.set_paras(dict_out)
             elif key_cache == 'data':
                 http.set_data(dict_out)
             else:
