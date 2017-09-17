@@ -27,6 +27,11 @@ class BaselineConfig:
         self.email_user = config['EMAIL']['user']
         self.email_pwd = config['EMAIL']['pwd']
         self.email_receiver = config['EMAIL']['receiver']
+        try:
+            self.db_path = config['DATABASE']['path']
+            self.db_result_table = config['DATABASE']['result_table']
+        except Exception as e:
+            print('%s' % e)
 
     def set_host(self, host):
         self.server_host = host
@@ -63,6 +68,12 @@ class BaselineConfig:
 
     def get_email_receiver(self):
         return self.email_receiver
+
+    def get_db_name(self):
+        return self.db_path
+
+    def get_db_result_table(self):
+        return self.db_result_table
 
 
 if __name__ == '__main__':

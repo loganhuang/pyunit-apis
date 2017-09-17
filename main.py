@@ -7,6 +7,7 @@ from common.const.const import PATH
 from utils.HTMLTestReportEN import HTMLTestRunner
 from utils.report import BaseLineReport
 from utils.sendemail import BaseLineEmail
+from common.database.BaseLineTestResult import save_test_result
 
 
 if __name__ == '__main__':
@@ -22,12 +23,17 @@ if __name__ == '__main__':
 
     # test runner
     runner = HTMLTestRunner(stream=fp, verbosity=2, title=u'测试报告', description=u'用例执行情况：')
-    runner.run(discover)
+    ret = runner.run(discover)
     fp.close()
 
     # get report
     report_file = BaseLineReport.get_new_report()
 
+    # save result
+    total = ret.failure_count + ret.success_count + ret.error_count
+    data = [('ppdapis', ret.starttime, ret.endtime, total, ret.success_count, ret.failure_count, ret.error_count, report_file),]
+    save_test_result(data)
+
     # send email
     email = BaseLineEmail(report_file)
-    email.send_email()
+    # email.send_email()
