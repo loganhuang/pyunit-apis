@@ -1,4 +1,5 @@
 *.pyc
 .idea/*
 report/*.html
-logger/result/*
+logger/result/
+.DS_Store

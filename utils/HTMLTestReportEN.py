@@ -532,6 +532,12 @@ class _TestResult(TestResult):
         self.result = []
         # 增加一个测试通过率 --Findyou
         self.passrate = float(0)
+        self.starttime = 0
+        self.endtime = 0
+
+    def set_time(self, start, end):
+        self.starttime = start.timestamp()
+        self.endtime = end.timestamp()
 
     def startTest(self, test):
         TestResult.startTest(self, test)
@@ -630,6 +636,7 @@ class HTMLTestRunner(Template_mixin):
         self.stopTime = datetime.datetime.now()
         self.generateReport(test, result)
         print('\nTime Elapsed: %s' % (self.stopTime - self.startTime), file=sys.stderr)
+        result.set_time(self.startTime, self.stopTime)
         return result
 
     def sortResult(self, result_list):

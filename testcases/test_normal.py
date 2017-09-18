@@ -74,6 +74,7 @@ class BaseLineNormalCase(unittest.TestCase):
     def tearDown(self):
         self.log.info('%s[%s]======================TEST END======================\n\n', *(self.case_id, self.case_name))
 
+
 def load_tests(loader, tests, pattern):
     from utils.xlshandler import BaseLineXls
     from config.config import BaselineConfig
@@ -92,7 +93,7 @@ def load_tests(loader, tests, pattern):
     bl_http.set_header(headers)
 
     caseXls = BaseLineXls(PATH.CASES_XLS_PATH + 'cases.xls')
-    cases = caseXls.get_xls('api_cases')
+    cases = caseXls.get_xls('kouzi_api')
     for case in cases:
         if not isinstance(case, list or tuple):
             raise TypeError
