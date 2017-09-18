@@ -341,7 +341,21 @@ class Template_mixin(object):
         }
 
         /* -- report ------------------------------------------------------------------------ */
-        #total_row  { font-weight: bold; }
+	#show_detail_line {
+	    margin-top: 3ex;
+	    margin-bottom: 1ex;
+	}
+	#result_table {
+	    width: 80%;
+	    border-collapse: collapse;
+	    border: 1px solid #777;
+	}
+
+	#result_table td {
+	    border: 1px solid #777;
+	    padding: 2px;
+        }
+	#total_row  { font-weight: bold; }
         .passCase   { color: #5cb85c; }
         .failCase   { color: #d9534f; font-weight: bold; }
         .errorCase  { color: #f0ad4e; font-weight: bold; }
