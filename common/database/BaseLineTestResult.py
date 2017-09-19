@@ -11,6 +11,9 @@ def save_test_result(data):
     t_name = config.get_db_result_table()
     db_name = config.get_db_name()
 
+    if not isinstance(t_name, str) or not isinstance(db_name, str):
+        return
+
     if len(t_name) <= 0 or len(db_name) <= 0:
         return
 

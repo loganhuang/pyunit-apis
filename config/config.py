@@ -27,6 +27,8 @@ class BaselineConfig:
         self.email_user = config['EMAIL']['user']
         self.email_pwd = config['EMAIL']['pwd']
         self.email_receiver = config['EMAIL']['receiver']
+        self.db_result_table = None
+        self.db_path = None
         try:
             self.db_path = config['DATABASE']['path']
             self.db_result_table = config['DATABASE']['result_table']
