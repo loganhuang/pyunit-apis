@@ -35,5 +35,6 @@ if __name__ == '__main__':
     save_test_result(data)
 
     # send email
-    email = BaseLineEmail(report_file)
-    # email.send_email()
+    if ret.error_count > 0 or ret.failure_count > 0:
+        email = BaseLineEmail(report_file)
+        email.send_email()
