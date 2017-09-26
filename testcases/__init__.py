@@ -18,7 +18,7 @@ if __name__ == '__main__':
     from utils.httpmethods import BaseLineHttp
     from utils.xlshandler import BaseLineXls
     import unittest
-    from testcases import test_normal
+    from testcases.api import test_api_normal
 
     # 构造测试集
     suite = unittest.TestSuite()
@@ -38,7 +38,7 @@ if __name__ == '__main__':
         if not isinstance(case, list or tuple):
             raise TypeError
         if case[8]:
-            suite.addTest(test_normal.BaseLineNormalCase(api_data=case, http=bl_http))
+            suite.addTest(test_api_normal.BaseLineNormalCase(api_data=case, http=bl_http))
 
     # 执行测试
     runner = unittest.TextTestRunner()

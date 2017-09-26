@@ -27,13 +27,32 @@ class BaselineConfig:
         self.email_user = config['EMAIL']['user']
         self.email_pwd = config['EMAIL']['pwd']
         self.email_receiver = config['EMAIL']['receiver']
-        self.db_result_table = None
         self.db_path = None
+        self.db_api_table = None
+        self.db_monitor_table = None
+        self.db_web_table = None
+
+
+        try:
+            self.test_categories = config['OTHER']['test_categories'].split(';')
+        except Exception as e:
+            self.test_categories = ['api']
+            print('%s' % e)
+
         try:
             self.db_path = config['DATABASE']['path']
-            self.db_result_table = config['DATABASE']['result_table']
+            if 'api' in self.test_categories:
+                self.db_api_table = config['DATABASE']['apitable']
+
+            if 'monitor' in self.test_categories:
+                self.db_monitor_table = config['DATABASE']['monitortable']
+
+            if 'web' in self.test_categories:
+                self.db_web_table = config['DATABASE']['webtable']
+
         except Exception as e:
             print('%s' % e)
+
 
     def set_host(self, host):
         self.server_host = host
@@ -74,8 +93,14 @@ class BaselineConfig:
     def get_db_name(self):
         return self.db_path
 
-    def get_db_result_table(self):
-        return self.db_result_table
+    def get_db_api_table(self):
+        return self.db_api_table
+
+    def get_db_web_table(self):
+        return self.db_web_table
+
+    def get_db_monitor_table(self):
+        return self.db_monitor_table
 
 
 if __name__ == '__main__':
