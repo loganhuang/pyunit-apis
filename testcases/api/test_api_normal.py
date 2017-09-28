@@ -83,7 +83,6 @@ def load_tests(loader, tests, pattern):
     # 构造测试集
     suite = unittest.TestSuite()
     config = BaselineConfig(PATH.CONFIG_INI_FILE)
-    # bl_http = BaseLineHttp(config.get_host(), config.get_port())
     server = config.get_server_by_key('api')
     bl_http = BaseLineHttp(server[0], server[1])
 
@@ -96,12 +95,14 @@ def load_tests(loader, tests, pattern):
     bl_http.set_header(headers)
 
     caseXls = BaseLineXls(PATH.CASES_XLS_PATH + 'cases.xls')
-    cases = caseXls.get_xls('kouzi_api')
-    for case in cases:
-        if not isinstance(case, list or tuple):
-            raise TypeError
-        if case[8]:
-            suite.addTest(BaseLineNormalCase(api_data=case, http=bl_http))
+    for sheet in caseXls.get_sheets_name():
+        if sheet.find('api') >= 0:
+            cases = caseXls.get_xls(sheet)
+            for case in cases:
+                if not isinstance(case, list or tuple):
+                    raise TypeError
+                if case[8]:
+                    suite.addTest(BaseLineNormalCase(api_data=case, http=bl_http))
 
     return suite
 

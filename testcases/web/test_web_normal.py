@@ -115,12 +115,14 @@ def load_tests(loader, tests, pattern):
     suite = unittest.TestSuite()
 
     case_xls = BaseLineXls(PATH.CASES_XLS_PATH + 'cases.xls')
-    cases = case_xls.get_xls('web_kouzi')
-    for case in cases:
-        if not isinstance(case, list or tuple):
-            raise TypeError
-        if case[5]:
-            suite.addTest(BaseLineNormalCase(api_data=case, web_driver=None))
+    for sheet in case_xls.get_sheets_name():
+        if sheet.find('web') >= 0:
+            cases = case_xls.get_xls(sheet)
+            for case in cases:
+                if not isinstance(case, list or tuple):
+                    raise TypeError
+                if case[5]:
+                    suite.addTest(BaseLineNormalCase(api_data=case, web_driver=None))
 
     # driver.close_all_page()
     return suite

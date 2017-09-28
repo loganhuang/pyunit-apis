@@ -50,11 +50,14 @@ class BaseLineEmail:
         msg['Subject'] = Header(subject, 'utf-8')
 
         # 连接发送邮件
-        smtp = smtplib.SMTP()
-        smtp.connect(smtpserver, 25)
-        smtp.login(user, password)
-        smtp.sendmail(user, receiver, msg.as_string())
-        smtp.quit()
+        try:
+            smtp = smtplib.SMTP()
+            smtp.connect(smtpserver, 25)
+            smtp.login(user, password)
+            smtp.sendmail(user, receiver, msg.as_string())
+            smtp.quit()
+        except BaseException as e:
+            print('send_email error: %s' % e)
 
 
 if __name__ == '__main__':
