@@ -27,7 +27,6 @@ class BaselineConfig:
             'monitor': {'host': config['MONSERVER']['host'], 'port': config['MONSERVER']['port']}
         }
 
-
         self.email_smtp = config['EMAIL']['smtp']
         self.email_user = config['EMAIL']['user']
         self.email_pwd = config['EMAIL']['pwd']
@@ -61,19 +60,6 @@ class BaselineConfig:
     def get_server_by_key(self, key):
         service_dict = self.service_dict[key]
         return tuple([service_dict['host'], service_dict['port']])
-
-
-    # def set_host(self, host):
-    #     self.server_host = host
-    #
-    # def get_host(self):
-    #     return self.server_host
-    #
-    # def set_port(self, port):
-    #     self.server_port = port
-    #
-    # def get_port(self):
-    #     return self.server_port
 
     def set_email_smtp(self, smtp):
         self.email_smtp = smtp

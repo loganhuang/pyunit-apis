@@ -15,8 +15,10 @@ from config.config import BaselineConfig
 def api_test_main():
     # search test cases
     test_dir = PATH.PROJ_PATH + 'testcases/api'
-    print(test_dir)
     discover = unittest.TestLoader().discover(test_dir, pattern='test*.py')
+    if discover.countTestCases() <= 0:
+        print('no test cases, so return')
+        return
 
     # about report
     test_report_dir = PATH.REPORT_PATH
@@ -35,7 +37,7 @@ def api_test_main():
     # save result
     total = ret.failure_count + ret.success_count + ret.error_count
     data = [('ppdapis', ret.starttime, ret.endtime, total, ret.success_count, ret.failure_count, ret.error_count, report_file),]
-    # save_api_test_result(data)
+    save_api_test_result(data)
 
     # send email
     if ret.error_count > 0 or ret.failure_count > 0:
@@ -48,6 +50,9 @@ def web_test_main():
     # search test cases
     test_dir = PATH.PROJ_PATH + 'testcases/web'
     discover = unittest.TestLoader().discover(test_dir, pattern='test*.py')
+    if discover.countTestCases() <= 0:
+        print('no test cases, so return')
+        return
 
     # about report
     test_report_dir = PATH.REPORT_PATH
@@ -77,8 +82,10 @@ def web_test_main():
 def monitor_test_main():
     # search test cases
     test_dir = PATH.PROJ_PATH + 'testcases/monitor'
-    print(test_dir)
     discover = unittest.TestLoader().discover(test_dir, pattern='test*.py')
+    if discover.countTestCases() <= 0:
+        print('no test cases, so return')
+        return
 
     # about report
     test_report_dir = PATH.REPORT_PATH

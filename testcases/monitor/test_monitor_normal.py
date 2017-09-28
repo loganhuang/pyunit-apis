@@ -94,12 +94,14 @@ def load_tests(loader, tests, pattern):
     bl_http.set_header(headers)
 
     caseXls = BaseLineXls(PATH.CASES_XLS_PATH + 'cases.xls')
-    cases = caseXls.get_xls('kouzi_api')
-    for case in cases:
-        if not isinstance(case, list or tuple):
-            raise TypeError
-        if case[8]:
-            suite.addTest(BaseLineNormalCase(api_data=case, http=bl_http))
+    for sheet in caseXls.get_sheets_name():
+        if sheet.find('monitor') >= 0:
+            cases = caseXls.get_xls(sheet)
+            for case in cases:
+                if not isinstance(case, list or tuple):
+                    raise TypeError
+                if case[8]:
+                    suite.addTest(BaseLineNormalCase(api_data=case, http=bl_http))
 
     return suite
 
