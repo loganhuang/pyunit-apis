@@ -7,8 +7,7 @@ from common.const.const import PATH
 from utils.HTMLTestReportEN import HTMLTestRunner
 from utils.report import BaseLineReport
 from utils.sendemail import BaseLineEmail
-from common.database.BaseLineTestResult import save_api_test_result
-from common.database.BaseLineTestResult import save_monitor_test_result
+from common.database.BaseLineTestResult import save_api_test_result, save_monitor_test_result, save_web_test_result
 from config.config import BaselineConfig
 
 
@@ -36,7 +35,7 @@ def api_test_main():
 
     # save result
     total = ret.failure_count + ret.success_count + ret.error_count
-    data = [('ppdapis', ret.starttime, ret.endtime, total, ret.success_count, ret.failure_count, ret.error_count, report_file),]
+    data = [('apis', ret.starttime, ret.endtime, total, ret.success_count, ret.failure_count, ret.error_count, report_file),]
     save_api_test_result(data)
 
     # send email
@@ -70,7 +69,8 @@ def web_test_main():
 
     # save result
     total = ret.failure_count + ret.success_count + ret.error_count
-    data = [('ppdapis', ret.starttime, ret.endtime, total, ret.success_count, ret.failure_count, ret.error_count, report_file),]
+    data = [('web', ret.starttime, ret.endtime, total, ret.success_count, ret.failure_count, ret.error_count, report_file),]
+    save_web_test_result(data)
 
     # send email
     if ret.error_count > 0 or ret.failure_count > 0:
@@ -103,7 +103,7 @@ def monitor_test_main():
 
     # save result
     total = ret.failure_count + ret.success_count + ret.error_count
-    data = [('ppdapis', ret.starttime, ret.endtime, total, ret.success_count, ret.failure_count, ret.error_count, report_file),]
+    data = [(0, "report", 'montest', "monitor", ret.starttime, ret.endtime, total, ret.success_count, ret.failure_count, ret.error_count, 1, 1, "None", report_file),]
     save_monitor_test_result(data)
 
     # send email
