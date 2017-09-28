@@ -83,7 +83,10 @@ def load_tests(loader, tests, pattern):
     # 构造测试集
     suite = unittest.TestSuite()
     config = BaselineConfig(PATH.CONFIG_INI_FILE)
-    bl_http = BaseLineHttp(config.get_host(), config.get_port())
+    # bl_http = BaseLineHttp(config.get_host(), config.get_port())
+
+    bl_http = BaseLineHttp(BaselineConfig.get_server_by_key('api'))
+
     headers = {
         'Content-Type': "application/json;charset=UTF-8",
         'OPERATOR_TOKEN': "",
