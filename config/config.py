@@ -17,11 +17,16 @@ class BaselineConfig:
             pass
 
         config = configparser.ConfigParser()
-
         # 从配置文件中读取接口服务器IP、域名，端口
         config.read(ini_file)
-        self.server_host = config['HTTP']['host']
-        self.server_port = config['HTTP']['port']
+        # self.server_host = config['HTTP']['host']
+        # self.server_port = config['HTTP']['port']
+        self.service_dict = {
+            'api': {'host': config['APISERVER']['host'], 'port': config['APISERVER']['port']},
+            'web': {'host': config['WEBSERVER']['host'], 'port': config['WEBSERVER']['port']},
+            'monitor': {'host': config['MONSERVER']['host'], 'port': config['MONSERVER']['port']}
+        }
+
 
         self.email_smtp = config['EMAIL']['smtp']
         self.email_user = config['EMAIL']['user']
@@ -53,18 +58,22 @@ class BaselineConfig:
         except Exception as e:
             print('%s' % e)
 
+    def get_server_by_key(self, key):
+        service_dict = self.service_dict[key]
+        return tuple([service_dict['host'], service_dict['port']])
 
-    def set_host(self, host):
-        self.server_host = host
 
-    def get_host(self):
-        return self.server_host
-
-    def set_port(self, port):
-        self.server_port = port
-
-    def get_port(self):
-        return self.server_port
+    # def set_host(self, host):
+    #     self.server_host = host
+    #
+    # def get_host(self):
+    #     return self.server_host
+    #
+    # def set_port(self, port):
+    #     self.server_port = port
+    #
+    # def get_port(self):
+    #     return self.server_port
 
     def set_email_smtp(self, smtp):
         self.email_smtp = smtp

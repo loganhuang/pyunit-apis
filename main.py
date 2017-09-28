@@ -35,12 +35,12 @@ def api_test_main():
     # save result
     total = ret.failure_count + ret.success_count + ret.error_count
     data = [('ppdapis', ret.starttime, ret.endtime, total, ret.success_count, ret.failure_count, ret.error_count, report_file),]
-    save_api_test_result(data)
+    # save_api_test_result(data)
 
     # send email
     if ret.error_count > 0 or ret.failure_count > 0:
         email = BaseLineEmail(report_file)
-        # email.send_email()
+        email.send_email()
     pass
 
 
@@ -70,7 +70,7 @@ def web_test_main():
     # send email
     if ret.error_count > 0 or ret.failure_count > 0:
         email = BaseLineEmail(report_file)
-        # email.send_email()
+        email.send_email()
     pass
 
 
@@ -102,17 +102,36 @@ def monitor_test_main():
     # send email
     if ret.error_count > 0 or ret.failure_count > 0:
         email = BaseLineEmail(report_file)
-        # email.send_email()
+        email.send_email()
     pass
 
 
 if __name__ == '__main__':
+    import sys
     callback = {'api': api_test_main, 'web': web_test_main, 'monitor': monitor_test_main}
     categories = BaselineConfig(PATH.CONFIG_INI_FILE).test_categories
 
-    for key in callback:
-        print(key)
-        if key in categories:
-            fun = callback[key]
-            fun()
+    usage = '''
+        Usage:
+        python3 %(sript_name)s test_categories
+        example:
+        python3 %(sript_name)s api
+        python3 %(sript_name)s api web monitor
+        support test categories:
+        %(categories)s
+        '''% {'sript_name': sys.argv[0], 'categories': categories}
+    if len(sys.argv) < 2:
+        print(usage)
+        pass
+
+    for i in range(1, len(sys.argv)):
+        if sys.argv[i] in categories:
+            entry = callback[sys.argv[i]]
+            entry()
+        else:
+            print('wrong parameters')
+            print(usage)
+
+    pass
+
 
