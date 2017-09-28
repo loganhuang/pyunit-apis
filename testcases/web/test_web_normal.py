@@ -32,7 +32,7 @@ class BaseLineNormalCase(unittest.TestCase):
 
         self.case_id = self.api_data[0]
         self.case_name = self.api_data[1]
-        self.web_driver = BaseLineWebDriver(BaselineConfig(PATH.CONFIG_INI_FILE).get_host())
+        self.web_driver = BaseLineWebDriver(BaselineConfig(PATH.CONFIG_INI_FILE).get_server_by_key('web')[0])
         self.web_driver.open_page(self.api_data[2])
 
         self.log.info('%s[%s]======================TEST START=======================', *(self.case_id, self.case_name))
@@ -115,7 +115,7 @@ def load_tests(loader, tests, pattern):
     suite = unittest.TestSuite()
 
     case_xls = BaseLineXls(PATH.CASES_XLS_PATH + 'cases.xls')
-    cases = case_xls.get_xls('page_cases')
+    cases = case_xls.get_xls('web_kouzi')
     for case in cases:
         if not isinstance(case, list or tuple):
             raise TypeError
